@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
 from utils import list_eq
+import functools
 
 
 @dataclass
@@ -58,6 +59,14 @@ def to_string(tm: Term) -> str:
             return fn_name + "(" + (_tms_to_string(to_string, tms)) + ")"
 
 
+def get_vars(tm: Term) -> list[Term]:
+    match tm:
+        case Var(x):
+            return [Var(x)]
+        case FnApp((_, tms)):
+            l = map(get_vars, tms)
+            return functools.reduce(list.__add__, l, [])
+
 
 # x = Var("x")
 # y = Var("y")
@@ -67,5 +76,3 @@ def to_string(tm: Term) -> str:
 #
 # s = FnApp((f, [x, x, x, y]))
 # t = FnApp((f, [x]))
-#
-# print(to_string(s))
