@@ -72,8 +72,11 @@ def get_vars(tm: Term) -> list[Term]:
         case Var(x):
             return [Var(x)]
         case FnApp((_, tms)):
-            l = map(get_vars, tms)
-            return functools.reduce(list.__add__, l, [])
+            return functools.reduce(
+                list.__add__,
+                map(get_vars, tms),
+                []
+            )
 
 
 # x = Var("x")
