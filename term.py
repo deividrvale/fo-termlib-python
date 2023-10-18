@@ -37,6 +37,14 @@ def term_eq(s: Term, t: Term) -> bool:
             raise TypeError("Arguments to term_eq should be instances of Terms.")
 
 
+def is_var(tm: Term) -> bool:
+    match tm:
+        case (Var(_)):
+            return True
+        case _:
+            return False
+
+
 def _tms_to_string(f, tms: list[Term]):
     if (len(tms)) == 0:
         return ""
