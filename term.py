@@ -66,13 +66,3 @@ def get_vars(tm: Term) -> list[Term]:
         case FnApp((_, tms)):
             l = map(get_vars, tms)
             return functools.reduce(list.__add__, l, [])
-
-
-# x = Var("x")
-# y = Var("y")
-#
-# f = FnSym("f", 2)
-# g = FnSym("g", 2)
-#
-# s = FnApp((f, [x, x, x, y]))
-# t = FnApp((f, [x]))
