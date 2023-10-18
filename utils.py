@@ -10,25 +10,25 @@ def list_eq(eq, xs: list, ys: list) -> bool:
         return False
 
 
-def is_member(eq, x, list) -> bool:
-    for y in list:
-        if (eq(x,y) == True):
+def is_member(eq, x, xs) -> bool:
+    for y in xs:
+        if eq(x, y) is True:
             return True
     return False
 
 
-def remove_duplicates(eq, list):
+def remove_duplicates(eq, xs):
     unique_list = []
-    for y in list:
-        if (is_member(eq, y, unique_list)):
+    for y in xs:
+        if is_member(eq, y, unique_list):
             continue
         else:
-            unique_list = unique_list + [y]
+            unique_list += [y]
     return unique_list
 
 
-def is_sublist(eq, list1, list2) -> bool:
-    for x in list1:
-        if not(is_member(eq, x, list2)):
+def is_sublist(eq, xs, ys) -> bool:
+    for x in xs:
+        if not (is_member(eq, x, ys)):
             return False
     return True
