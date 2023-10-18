@@ -77,13 +77,3 @@ def get_vars(tm: Term) -> list[Term]:
                 map(get_vars, tms),
                 []
             )
-
-
-# x = Var("x")
-# y = Var("y")
-#
-# f = FnSym("f", 2)
-# g = FnSym("g", 2)
-#
-# s = FnApp((f, [x, x, x, y]))
-# t = FnApp((f, [x]))
