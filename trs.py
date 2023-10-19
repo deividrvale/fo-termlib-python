@@ -1,5 +1,5 @@
 from dataclasses import dataclass
-from term import Term
+from term import Term, FnApp, FnSym, Var
 import term as tm
 import utils
 
@@ -16,12 +16,22 @@ class Rule:
     def __init__(self, lhs: Term, rhs: Term):
         if tm.is_var(lhs):
             raise TypeError(
-                "The lhs of the rule " + to_string(lhs, rhs) + " is of type variable."
+                "The lhs of the rule " +
+                to_string(lhs, rhs) +
+                " is of type variable."
             )
+        vars_lhs = tm.get_vars(lhs)
+        if not utils.is_sublist(tm.term_eq, tm.get_vars(rhs), vars_lhs) and len(vars_lhs) > 0:
+            raise TypeError(
+                "The rule " +
+                to_string(lhs, rhs) +
+                " is not valid." +
+                " Recall that every variable in the (rhs) should also occur in the (lhs)."
+            )
+        self.lhs = lhs
+        self.rhs = rhs
 
 
-x = tm.Var("x")
-y = tm.Var("y")
-
-
-rule = Rule(x, y)
+@dataclass
+class Trs:
+    rules: list[Rule]

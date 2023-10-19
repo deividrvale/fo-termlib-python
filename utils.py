@@ -10,7 +10,7 @@ def list_eq(eq, xs: list, ys: list) -> bool:
         return False
 
 
-def is_member(eq, x, xs) -> bool:
+def is_member(eq, x, xs: list) -> bool:
     for y in xs:
         if eq(x, y) is True:
             return True
