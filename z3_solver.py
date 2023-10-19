@@ -7,6 +7,7 @@ y = Bool("y")
 solver = Solver()
 
 solver.add(And(x, y), Not(y))
+
 print(solver.check())
 
 # def get_solver_status():

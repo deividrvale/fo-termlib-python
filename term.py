@@ -15,6 +15,9 @@ class Var:
     def __repr__(self):
         return self.name
 
+    def __hash__(self):
+        return hash(str(self))
+
 
 @dataclass
 class FnSym:
@@ -26,6 +29,9 @@ class FnSym:
 
     def __repr__(self):
         return self.name
+
+    def __hash__(self):
+        return hash(str(self))
 
 
 @dataclass
@@ -55,6 +61,9 @@ class FnApp:
 
     def __repr__(self):
         return to_string(self)
+
+    def __hash__(self):
+        return hash(str(self))
 
 
 Term: UnionType = Var | FnApp

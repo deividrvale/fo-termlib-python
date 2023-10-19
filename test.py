@@ -1,15 +1,33 @@
+import z3
+
+import trs
 from term import Term, FnApp, FnSym
 from trs import Rule, Trs
 import term as tm
 import lpo_solver as lpo
 
+# As a test, let us encode the following system manually:
+# f(x) -> x and g(f(x), y) -> f(y)
+
+# The python encoding of this system is as follows:
+# We first encodde the variables
 x = tm.Var("x")
 y = tm.Var("y")
-g = FnApp((FnSym("g", 2), [x, x]))
-f = FnApp((FnSym("f", 1), [x]))
 
-rule = Rule(f, x)
+# This system has two function symbols f : 1 and g : 2
 
-print(tm.get_vars(g))
+f = FnSym("f", 1)
+g = FnSym("g", 2)
 
-print(lpo.gen_fn_pred_name(f))
+sig = [f, g]
+
+# Now we encode the first rule, f(x) -> x
+
+fx = FnApp((f, [x]))
+
+rule1 = trs.Rule(fx, x)
+
+# Now we encode the second rule, g(f(x), y) -> f(y)
+fy = FnApp((f, [y]))
+
+rule2 = trs.Rule(FnApp((g, [fx, y])), fy)
