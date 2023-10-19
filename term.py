@@ -123,7 +123,21 @@ def get_vars(tm: Term) -> list[Term]:
             case FnApp((_, tms)):
                 return functools.reduce(
                     list.__add__,
-                    map(get_vars, tms),
+                    map(_get_vars, tms),
                     []
                 )
     return remove_duplicates(term_eq, _get_vars(tm))
+
+
+def get_subterms(tm: Term) -> list[Term]:
+    def _get_subterms(t: Term):
+        match t:
+            case Var(x):
+                return [Var(x)]
+            case FnApp((f, tms)):
+                return functools.reduce(
+                    list.__add__,
+                    ([[FnApp((f, tms))]] + list(map(_get_subterms, tms))),
+                    []
+                )
+    return remove_duplicates(term_eq, _get_subterms(tm))
