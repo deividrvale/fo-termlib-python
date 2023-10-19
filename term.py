@@ -1,6 +1,7 @@
 from __future__ import annotations
 from dataclasses import dataclass
-from utils import list_eq
+from types import UnionType
+from utils import list_eq, remove_duplicates
 import functools
 
 
@@ -8,19 +9,55 @@ import functools
 class Var:
     name: str
 
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
 
 @dataclass
 class FnSym:
     name: str
     arity: int
 
+    def __str__(self):
+        return self.name
+
+    def __repr__(self):
+        return self.name
+
 
 @dataclass
 class FnApp:
     fnApp: tuple[FnSym, list[Term]]
 
+    def __init__(self, app: tuple[FnSym, list[Term]]):
+        match app:
+            case (FnSym(f, ar), args):
+                if ar == len(args):
+                    self.fnApp = (FnSym(f, ar), args)
+                else:
+                    raise TypeError(
+                        "Invalid functional application!" +
+                        f" The arity of {f} is {str(ar)}" +
+                        f" but it is being applied to {str(len(args))}."
+                    )
+            case x:
+                raise TypeError(
+                    "Invalid term construction."
+                    " Expected type is tuple[FnSym, list[Term]]" +
+                    f" supplied argument type is {type(x)}."
+                )
 
-Term = Var | FnApp
+    def __str__(self):
+        return to_string(self)
+
+    def __repr__(self):
+        return to_string(self)
+
+
+Term: UnionType = Var | FnApp
 
 
 def term_eq(s: Term, t: Term) -> bool:
@@ -62,18 +99,22 @@ def to_string(tm: Term) -> str:
     match tm:
         case Var(x):
             return x
+        case FnApp(((FnSym(f, _)), [])):
+            return f
         case FnApp((f, tms)):
             fn_name = f.name
             return fn_name + "(" + (_tms_to_string(to_string, tms)) + ")"
 
 
 def get_vars(tm: Term) -> list[Term]:
-    match tm:
-        case Var(x):
-            return [Var(x)]
-        case FnApp((_, tms)):
-            return functools.reduce(
-                list.__add__,
-                map(get_vars, tms),
-                []
-            )
+    def _get_vars(t: Term):
+        match t:
+            case Var(x):
+                return [Var(x)]
+            case FnApp((_, tms)):
+                return functools.reduce(
+                    list.__add__,
+                    map(get_vars, tms),
+                    []
+                )
+    return remove_duplicates(term_eq, _get_vars(tm))
