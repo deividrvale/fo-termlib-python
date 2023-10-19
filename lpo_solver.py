@@ -1,4 +1,3 @@
-# from term import *
 from term import Term, FnSym
 
 import term as tm
@@ -11,6 +10,9 @@ def gen_gt_name(s: Term, t: Term) -> str:
     """
     Given two terms s and t, generates the string [s > t].
     """
+    if not isinstance(s, Term) and isinstance(t, Term):
+        raise TypeError(f"The arguments is of type {type(s)} and {type(t)} "
+                        f"while they should be of type <class tm.Term>")
     return "[" + tm.to_string(s) + ">" + tm.to_string(t) + "]"
 
 
@@ -60,3 +62,9 @@ def gen_z3_prec_vars(fs: list[FnSym]):
     for f in fs:
         z3_prec[f] = z3.Int(gen_fn_pred_name(f))
     print(z3_prec)
+
+
+# Adding constraints over those variables -------------------------------------
+def gen_z3_ctrs(s: Term, t: Term):
+    subtm_s = tm.get_subterms(s)
+    subtm_t = tm.get_subterms(t)
