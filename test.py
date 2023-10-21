@@ -10,7 +10,7 @@ import lpo_solver as lpo
 # f(x) -> x and g(f(x), y) -> f(y)
 
 # The python encoding of this system is as follows:
-# We first encodde the variables
+# We first encode the variables
 x = tm.Var("x")
 y = tm.Var("y")
 
@@ -29,5 +29,12 @@ rule1 = trs.Rule(fx, x)
 
 # Now we encode the second rule, g(f(x), y) -> f(y)
 fy = FnApp((f, [y]))
+gf = FnApp((g, [fx, y]))
 
-rule2 = trs.Rule(FnApp((g, [fx, y])), fy)
+rule2 = trs.Rule(gf, fx)
+
+lpo.gen_z3_ctrs(rule1.lhs, rule1.rhs)
+lpo.gen_z3_ctrs(rule2.lhs, rule2.rhs)
+
+print(lpo.solver)
+print(lpo.solver.check())

@@ -104,7 +104,7 @@ def _tms_to_string(f, tms: list[Term]):
 
 def to_string(tm: Term) -> str:
     if not isinstance(tm, Term):
-        raise TypeError("Argument of incorrect type, please supply an argument that is an instance of Term.")
+        raise TypeError(f"The argument is of type {type(tm)} while it should be of type Term.")
     match tm:
         case Var(x):
             return x

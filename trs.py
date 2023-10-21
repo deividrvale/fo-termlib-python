@@ -34,4 +34,6 @@ class Rule:
 
 @dataclass
 class Trs:
+    vars: list[Var]
+    signature: list[FnSym]
     rules: list[Rule]
