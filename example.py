@@ -33,6 +33,7 @@ gf = FnApp((g, [fx, y]))
 
 rule2 = trs.Rule(gf, fx)
 
+
 lpo.gen_z3_ctrs(rule1.lhs, rule1.rhs)
 lpo.gen_z3_ctrs(rule2.lhs, rule2.rhs)
 

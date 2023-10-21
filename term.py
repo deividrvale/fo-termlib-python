@@ -112,7 +112,7 @@ def to_string(tm: Term) -> str:
             return f
         case FnApp((f, tms)):
             fn_name = f.name
-            return fn_name + "(" + (_tms_to_string(to_string, tms)) + ")"
+            return f"{f.name}({_tms_to_string(to_string, tms)})"
 
 
 def get_vars(tm: Term) -> list[Term]:
