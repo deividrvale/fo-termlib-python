@@ -182,4 +182,13 @@ fy = FnApp((f, [y]))
 gf = FnApp((g, [fx, y]))
 
 rule2 = trs.Rule(gf, fx)
+
+
+trs = Trs([x, y], sig, [rule1, rule2])
+
+
+lpo.prove_termination(trs)
 ```
+
+The ``lpo.prove_termination()`` finally adds the constraints into the z3 solver
+and check for satisfiability.
