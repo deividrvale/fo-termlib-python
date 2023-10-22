@@ -33,9 +33,7 @@ gf = FnApp((g, [fx, y]))
 
 rule2 = trs.Rule(gf, fx)
 
+trs = Trs([x, y], sig, [rule1, rule2])
 
-lpo.gen_z3_ctrs(rule1.lhs, rule1.rhs)
-lpo.gen_z3_ctrs(rule2.lhs, rule2.rhs)
 
-print(lpo.solver)
-print(lpo.solver.check())
+lpo.prove_termination(trs)

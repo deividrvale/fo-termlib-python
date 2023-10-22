@@ -1,4 +1,5 @@
 from term import Term, FnSym, Var, FnApp
+from trs import Trs
 
 import term as tm
 import z3
@@ -83,7 +84,6 @@ def _gen_z3_ctrs(u: Term, v: Term):
                 z3_gt[u, v],
                 or_exprs
             ))
-            # print(solver)
         case (FnApp((f, args_u)), FnApp((g, args_v))) if f == g and len(args_u) == len(args_v) > 0:
             # Let i be the smallest index 0 <= i < n such that u_i != v_i.
             # We will compute this index below.
@@ -109,7 +109,6 @@ def _gen_z3_ctrs(u: Term, v: Term):
             if min_index == len(args_u):
                 gen_z3_gt(u, v)
                 solver.add(z3_gt[(u, v)])
-                print(solver)
             else:
                 # In this case, we have to generate the expression:
                 # [u > v] -> (
@@ -145,8 +144,8 @@ def _gen_z3_ctrs(u: Term, v: Term):
                 gen_z3_gt(u, v_i)
             or_exprs = z3.Or(list(map(lambda x: z3_gte[(x, v)], args_u)))
             and_exprs = z3.And((
-                [z3_prec[f] > z3_prec[g]] +
-                list(map(lambda x: z3_gt[(u,x)], args_v))
+                    [z3_prec[f] > z3_prec[g]] +
+                    list(map(lambda x: z3_gt[(u, x)], args_v))
             ))
             solver.add(z3.Implies(
                 z3_gt[(u, v)],
@@ -155,7 +154,6 @@ def _gen_z3_ctrs(u: Term, v: Term):
                     and_exprs
                 )
             ))
-            # print(solver)
         case (_, _) if tm.term_eq(u, v):
             gen_z3_gt(u, v)
             solver.add(z3.Not(z3_gt[(u, v)]))
@@ -175,3 +173,20 @@ def gen_z3_ctrs(s: Term, t: Term):
     for u in subtm_s:
         for v in subtm_t:
             _gen_z3_ctrs(u, v)
+
+
+def prove_termination(trs: Trs):
+    for r in trs.rules:
+        gen_z3_ctrs(r.lhs, r.rhs)
+    match solver.check():
+        case z3.sat:
+            print("Term Rewriting System is terminating.")
+            print(solver.model())
+        case z3.unsat:
+            print("MAYBE")
+            exit()
+        case z3.unknown:
+            print("MAYBE")
+            exit()
+        case _:
+            raise TypeError("Argument is not an instance of <class Solver>.")
