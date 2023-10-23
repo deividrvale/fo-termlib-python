@@ -112,7 +112,7 @@ def _gen_z3_ctrs(u: Term, v: Term):
             else:
                 # In this case, we have to generate the expression:
                 # [u > v] -> (
-                #               ([u_1 >= v_1] \/ ... \/ [u_n >= v_n]) \/
+                #               ([u_1 >= v] \/ ... \/ [u_n >= v]) \/
                 #               ([u_i > v_i] /\ [u > v_{i + 1}] /\ ... /\ [u > v_n])
                 # To do this we generate the gt and gte variables first.
                 gen_z3_gt(u, v)
