@@ -14,17 +14,15 @@ The library is organized as follows.
 ├── lpo_solver.py
 ├── main.py
 ├── term.py
-├── test.py
 ├── trs.py
 └── utils.py
 ```
-
-The most important modules are ``term.py``, ``trs.py``, and ``lpo_solver.py``.
 
 - ``term.py`` defines the data structures for terms and implement some simple
 functions over it: term equality, and printing facilities.
 - ``trs.py`` defines the data structures for rules and rewriting systems.
 - ``lpo_solver.py`` implements a lpo solving algorithm.
+- ``main.py`` includes a simple parser and starts the LPO process.
 It can be used as a basis for more complicated versions of RPO implementations.
 
 ## Installation and Basic Requirements
@@ -51,6 +49,19 @@ In my experience, the linting and error checking in PyCharm is superior to that 
 Python virtual environments.
 
 ## Using and extending this library with your own assignment code
+
+To define an input TRS, run main.py with the given file as argument.  If you do not supply
+an argument, then the default file ``input.trs`` is read.
+
+The input file has the following format: every non-empty line should be a rule, of the form
+term -> term
+Here, terms are either variables (alpha-numeric identifiers), or expressions
+symbolname( term , ..., term )
+where the symbolname is again fully alpha-numeric.  Brackets must always be included, even if
+there are no arguments.  A given function symbol must always occur with the same number of
+arguments.  Variables are not given arguments.  Examples are given in add.trs and input.trs.
+
+## How are terms represented internally?
 
 The fundamental piece of code in the library is that defining the data structure for terms.
 Recall the formal definition: a term is either a variable or a functional application

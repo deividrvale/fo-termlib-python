@@ -1,0 +1,6 @@
+c(x, y, u, v) -> f(a(x, y), f(u, u, u), g(v, f(x, y, u)))
+f(a(x, y), g(x, y), a(x, g(z, u))) -> f(a(x, z), y, g(g(g(y, x), x), x))
+h(g(x, g(u, z)), c(x, y, x, z)) -> a(d(x, z), u)
+h(d(a(x, y), g(u, v)), a(x, y)) -> a(c(u, x, v, y), g(y, x))
+a(f(x, y, z), u) -> h(u, a(x, h(y, x)))
+f(b(x, y, z), y, x) -> c(x, x, y, x)
