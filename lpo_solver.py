@@ -19,6 +19,9 @@ def gen_gt_name(s: Term, t: Term) -> str:
 
 
 def gen_gte_name(s: Term, t: Term) -> str:
+    if not isinstance(s, Term) and isinstance(t, Term):
+        raise TypeError(f"The arguments is of type {type(s)} and {type(t)} "
+                        f"while they should be of type <class tm.Term>")
     return "[" + tm.to_string(s) + ">=" + tm.to_string(t) + "]"
 
 
@@ -41,10 +44,16 @@ z3_prec = {}
 
 
 def gen_z3_gt(s: Term, t: Term) -> None:
+    if not isinstance(s, Term) and isinstance(t, Term):
+        raise TypeError(f"The arguments is of type {type(s)} and {type(t)} "
+                        f"while they should be of type <class tm.Term>")
     z3_gt[(s, t)] = z3.Bool(gen_gt_name(s, t))
 
 
 def gen_z3_gte(s: Term, t: Term) -> None:
+    if not isinstance(s, Term) and isinstance(t, Term):
+        raise TypeError(f"The arguments is of type {type(s)} and {type(t)} "
+                        f"while they should be of type <class tm.Term>")
     # Since >= is just the union of syntactical equality and >, we do NOT use this:
     #   z3_gte[(s, t)] = z3.Bool(gen_gte_name(s, t))
     # as then we would have to create a defining formula for z3_gte[(s,t)] too.
@@ -150,7 +159,7 @@ def gen_z3_ctrs(s: Term, t: Term):
     # variables [u > v]
     subtm_s = tm.get_subterms(s)
     subtm_t = tm.get_subterms(t)
-    for (u, v) in list(itertools.product(subtm_s,subtm_t)):
+    for (u, v) in list(itertools.product(subtm_s, subtm_t)):
         gen_z3_gt(u, v)
         gen_z3_gte(u, v)
     # We require that [s > t] holds:
@@ -164,73 +173,78 @@ def gen_z3_ctrs(s: Term, t: Term):
 
 
 def print_precedence(model, sig):
-    pred = [ (f, 0) for f in sig if f not in z3_prec ] +\
-           [ (f, model.evaluate(z3_prec[f], model_completion=True).as_long()) for f in z3_prec ]
-    pred.sort(reverse=True, key=lambda x:x[1])
+    pred = [(f, 0) for f in sig if f not in z3_prec] + \
+           [(f, model.evaluate(z3_prec[f], model_completion=True).as_long()) for f in z3_prec]
+    pred.sort(reverse=True, key=lambda x: x[1])
     print("Precedence: ", end='')
     for i in range(len(pred)):
         if i > 0:
-          if pred[i-1][1] > pred[i][1]: print(' > ', end='')
-          else: print(' = ', end='')
+            if pred[i - 1][1] > pred[i][1]:
+                print(' > ', end='')
+            else:
+                print(' = ', end='')
         print(str(pred[i][0]), end='')
     print()
 
 
 def print_inequalities(model, rules):
-    pairsperrule = [ list(itertools.product(tm.get_subterms(s),tm.get_subterms(t))) for (s,t) in rules ]
-    pairs = list(set([ pair for sublist in pairsperrule for pair in sublist ]))
-    pairs.sort(key=lambda a:(len(str(a[0])), len(str(a[1]))), reverse=True)
-    pairs = [ (u,v) for (u,v) in pairs if model.evaluate(z3_gt[(u,v)], model_completion=True) ]
-    for pairindex in range(len(pairs)):
-        (u,v) = pairs[pairindex]
-        if (u,v) in rules: print("(RULE) ", end='')
-        else: print("       ", end='')
-        print(str(pairindex) + ". " + str(u) + " > " + str(v) + " by ", end='')
-        match (u,v):
-            case ( Var(_), _):
+    pairs_per_rule = [list(itertools.product(tm.get_subterms(s), tm.get_subterms(t))) for (s, t) in rules]
+    pairs = list(set([pair for sublist in pairs_per_rule for pair in sublist]))
+    pairs.sort(key=lambda a: (len(str(a[0])), len(str(a[1]))), reverse=True)
+    pairs = [(u, v) for (u, v) in pairs if model.evaluate(z3_gt[(u, v)], model_completion=True)]
+    for pair_index in range(len(pairs)):
+        (u, v) = pairs[pair_index]
+        if (u, v) in rules:
+            print("(RULE) ", end='')
+        else:
+            print("       ", end='')
+        print(str(pair_index) + ". " + str(u) + " > " + str(v) + " by ", end='')
+        match (u, v):
+            case (Var(_), _):
                 print("ERROR")
                 continue
-            case ( FnApp((f, args_u)), Var(_) ):
-                leftroot = f
-                leftargs = args_u
-                rightroot = None
-                rightargs = []
-            case ( FnApp((f, args_u)), FnApp((g, args_v)) ):
-                leftroot = f
-                leftargs = args_u
-                rightroot = g
-                rightargs = args_v
-        if v in leftargs:
+            case (FnApp((f, args_u)), Var(_)):
+                lef_root = f
+                left_args = args_u
+                right_root = None
+                right_args = []
+            case (FnApp((f, args_u)), FnApp((g, args_v))):
+                lef_root = f
+                left_args = args_u
+                right_root = g
+                right_args = args_v
+        if v in left_args:
             print("ARG because " + str(v) + " >= " + str(v) + ".")
             continue
-        u_i = next((arg for arg in leftargs if (arg,v) in pairs[pairindex+1:]), None)
-        if u_i != None:
-            j = pairs.index((u_i,v))
+        u_i = next((arg for arg in left_args if (arg, v) in pairs[pair_index + 1:]), None)
+        if u_i is not None:
+            j = pairs.index((u_i, v))
             print("ARG because " + str(j) + ".")
             continue
-        if rightroot == None:
+        if right_root is None:
             print("ERROR")
             continue
-        if leftroot == rightroot and len(leftargs) == len(rightargs) and leftargs != rightargs:
+        if lef_root == right_root and len(left_args) == len(right_args) and left_args != right_args:
             print("LEX because ", end='')
-            index = next(i for i in range(len(leftargs)) if leftargs[i] != rightargs[i])
-            needed = [ (leftargs[index], rightargs[index]) ] +\
-                     [ (u, rightargs[i]) for i in range(index+1, len(rightargs)) ]
-            reasons = [ str(pairs.index(p)) if p in pairs else "ERROR" + str(p[0]) + ">" + str(p[1]) for p in needed]
+            index = next(i for i in range(len(left_args)) if left_args[i] != right_args[i])
+            needed = [(left_args[index], right_args[index])] + \
+                     [(u, right_args[i]) for i in range(index + 1, len(right_args))]
+            reasons = [str(pairs.index(p)) if p in pairs else "ERROR" + str(p[0]) + ">" + str(p[1]) for p in needed]
             print(", ".join(reasons))
             continue
-        if rightroot != None and model.evaluate(z3_prec[leftroot]).as_long() > model.evaluate(z3_prec[rightroot]).as_long():
+        if right_root is not None and model.evaluate(z3_prec[lef_root]).as_long() > model.evaluate(
+                z3_prec[right_root]).as_long():
             print("COPY because " + str(f) + " > " + str(g) + " and ", end='')
-            needed =  [ (u, v_i) for v_i in rightargs ]
-            reasons = [ str(pairs.index(p)) if p in pairs else "ERROR" + str(p[0]) + ">" + str(p[1]) for p in needed]
+            needed = [(u, v_i) for v_i in right_args]
+            reasons = [str(pairs.index(p)) if p in pairs else "ERROR" + str(p[0]) + ">" + str(p[1]) for p in needed]
             print(", ".join(reasons))
             continue
         print("ERROR")
 
 
-def print_proof(model, trs : Trs):
+def print_proof(model, trs: Trs):
     print_precedence(model, trs.signature)
-    print_inequalities(model, [ (r.lhs, r.rhs) for r in trs.rules ])
+    print_inequalities(model, [(r.lhs, r.rhs) for r in trs.rules])
 
 
 def prove_termination(trs: Trs):
